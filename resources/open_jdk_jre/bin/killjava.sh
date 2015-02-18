@@ -21,14 +21,14 @@ set -e
 
 upload_to_s3() {
     file=$1
-	bucket=$(cat /app/AWS_S3_BUCKET)
+	bucket=$(cat /app/WEB-INF/classes/AWS_S3_BUCKET)
 	resource="/${bucket}/${file}"
 	contentType="text/plain"
 	dateValue=`date -R`
 
 	stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
-	s3Key=$(cat /app/AWS_ACCESS_KEY)
-	s3Secret=$(cat /app/AWS_SECRET_KEY)
+	s3Key=$(cat /app/WEB-INF/classes/AWS_ACCESS_KEY)
+	s3Secret=$(cat /app/WEB-INF/classes/AWS_SECRET_KEY)
 	signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
 	echo "https://${bucket}.s3.amazonaws.com/${file}"
 
@@ -57,7 +57,7 @@ Free Disk Space (Before)
 $(df -h)
 " >> /app/${logFile}
 
-upload_to_s3 /app/heapDump*.hprof
+upload_to_s3 /app/heapDump.hprof
 
 pkill -9 -f .*-XX:OnOutOfMemoryError=.*killjava.*
 
@@ -75,4 +75,4 @@ Free Disk Space (After)
 $(df -h)
 " >> /app/${logFile}
 
-upload_to_s3 /app/heapDump*.hprof
+upload_to_s3 /app/${logFile}
